@@ -13,6 +13,7 @@
       <module>apigw</module>
     <module>eureka-server</module>
       <module>employer-service</module>
+      <module>advert-service</module>
   </modules>
 
   <name>microservices</name>
