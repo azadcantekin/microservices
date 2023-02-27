@@ -2,14 +2,14 @@ server:
   port: 8083
 spring:
   application:
-    name: create-drop
+    name: advert-service
   datasource:
     password: password
     url: jdbc:postgresql://localhost:5432/advert
     username: act
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
