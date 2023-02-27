@@ -15,6 +15,7 @@
       <module>employer-service</module>
       <module>advert-service</module>
     <module>feign-clients</module>
+    <module>amqp</module>
   </modules>
 
   <name>microservices</name>
