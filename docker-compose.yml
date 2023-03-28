@@ -27,6 +27,13 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - spring
   rabbitmq:
     image: rabbitmq:3.9.11-management-alpine
     container_name: rabbitmq
@@ -35,13 +42,64 @@ services:
       - "15672:15672"
     networks:
       - spring
+  eureka-server:
+    image: library/eureka-server:1.0-SNAPSHOT
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+  apigw:
+    image: library/apigw:1.0-SNAPSHOT
+    container_name: apigw
+    ports:
+      - "8765:8765"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=docker"
+    networks:
+      - spring
+    depends_on:
+      - zipkin
+      - eureka-server
+
+  advert-service:
+      image: library/advert-service:1.0-SNAPSHOT
+      container_name: advert-service
+      ports:
+        - "8084:8084"
+      environment:
+        - "SPRING_PROFILES_ACTIVE=docker"
+      networks:
+        - spring
+        - postgres
+      depends_on:
+        - zipkin
+        - postgres
+
+  employer-service:
+      image: library/employer-service:1.0-SNAPSHOT
+      container_name: employer-service
+      ports:
+        - "8082:8082"
+      environment:
+        - "SPRING_PROFILES_ACTIVE=docker"
+      networks:
+        - spring
+        - postgres
+      depends_on:
+        - zipkin
+        - postgres
 
 networks:
-  postgres:
-    driver: bridge
-  spring:
-    driver: bridge
+    postgres:
+      driver: bridge
+    spring:
+      driver: bridge
 
 volumes:
-  postgres:
-  pgadmin:
+    postgres:
+    pgadmin:

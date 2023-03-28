@@ -1,0 +1,47 @@
+server:
+  port: '8765'
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+spring:
+  application:
+    name: api-gateway
+  zipkin:
+    base-url: http://zipkin:9411
+  cloud :
+    gateway:
+      routes:
+        - id: advert-service
+          uri: lb://advert-service
+          predicates:
+            - Path=/api/v1/advert/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: advertService
+                fallbackUri: forward:/advert-fallback
+
+        - id: employer-service
+          uri: lb://employer-service
+          predicates:
+            - Path=/api/v1/employer/**
+
+  resilience4j:
+    circuitbreaker:
+      instances:
+        advertService:
+          slidingWindowSize: 10
+          permittedNumberOfCallsInHalfOpenState: 5
+          failureRateThreshold: 50
+          waitDurationInOpenState: 10000
+          registerHealthIndicator: true
+    timelimiter:
+      instances:
+        bookService:
+          timeoutDuration: 3s
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka
